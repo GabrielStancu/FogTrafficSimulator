@@ -697,6 +697,14 @@ function updateSim(){
 
 function drawSpeedLimitInidcators() {
   trafficObjs.trafficObj.forEach((obj, index) => {
+    obj.isActive = [true, true, true, true, true, true][index];
+    obj.inDepot = [false, false, false, false, false, false][index];
+    obj.isPicked = [false, false, false, false, false, false][index];
+    obj.isDragged = [false, false, false, false, false, false][index];
+    obj.u = [67.76389384663773, 232.33335033132934, 406.58336307982637, 503.3889257178803, 629.2361571473504, 813.1667261596527][index];
+    obj.lane = [0, 0, 0, 0, 0, 0][index];
+    obj.len = [25, 25, 25, 25, 25, 25][index];
+    obj.width = [10, 10, 10, 10, 10, 10][index];
     obj.xPix = [897.5279973724664, 502.9531338484557, 123.89843804179202, 70.79408676108679, 250.42193180881614, 688.635422565637][index];
     obj.yPix = [184.61666666666667, 184.61666666666667, 304.76667701240945, 524.5525508799751, 750.4868401307692, 772.0333333333333][index];
     obj.xPixSign1 = [897.5279973724664, 502.9531338484557, 102.2350571389471, 97.31272263816821, 260.517450424387, 688.635422565637][index];
@@ -705,7 +713,8 @@ function drawSpeedLimitInidcators() {
     obj.yPixSign2 = [138.8172, 138.8172, 247.98206654270444, 456.1262698175738, 702.7174083712983, 726.2338666666667][index];
     obj.xPixDepot = [381.43, 466.57, 466.57, 466.57, 381.43, 381.43][index];
     obj.yPixDepot = [387.86, 387.86, 473, 558.14, 558.14, 473][index];
-  });
+    obj.road = [mainroad, mainroad, mainroad, mainroad, mainroad, mainroad][index];
+});
 }
 
 function computeReducedSpeedLimit() {
