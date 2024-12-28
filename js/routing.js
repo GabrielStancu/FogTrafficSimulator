@@ -51,7 +51,7 @@ var crashinfo=new CrashInfo();
 
 
 
-qIn=2200./3600;
+qIn=2500./3600;
 setSlider(slider_qIn, slider_qInVal, 3600*qIn, 0, "veh/h");
 
 var isGame=false;
@@ -59,7 +59,7 @@ var isGame=false;
 fracTruck=0.15;
 setSlider(slider_fracTruck, slider_fracTruckVal, 100*fracTruck, 0, "%");
 
-IDM_a=0.9; // low to allow stopGo
+IDM_a=2; // low to allow stopGo
 setSlider(slider_IDM_a, slider_IDM_aVal, IDM_a, 1, "m/s<sup>2</sup>");
 
 factor_a_truck=1; // to allow faster slowing down of the uphill trucks
@@ -539,8 +539,8 @@ rampImg=roadImgs1[nLanes_rmp-1];
 //############################################
 
 // TrafficObjects(canvas,nTL,nLimit,xRelDepot,yRelDepot,nRow,nCol)
-var trafficObjs=new TrafficObjects(canvas,2,2,0.60,0.50,0,0); // 0,0)=>nix
-var trafficLightControl=new TrafficLightControlEditor(trafficObjs,0.5,0.5);
+// var trafficObjs=new TrafficObjects(canvas,2,2,0.60,0.50,0,0); // 0,0)=>nix
+// var trafficLightControl=new TrafficLightControlEditor(trafficObjs,0.5,0.5);
 
 
 
@@ -555,7 +555,19 @@ var fps=30; // frames per second
 var dt=timewarp/fps;
 
 
+var trafficObjs=new TrafficObjects(canvas,0,6,0.40,0.50,3,2);
 
+// also needed to just switch the traffic lights
+// (then args xRelEditor,yRelEditor not relevant)
+//var trafficLightControl=new TrafficLightControlEditor(trafficObjs,0.5,0.5);
+var trafficLightControl=new TrafficLightControlEditor(trafficObjs,0.33,0.68);
+
+trafficObjs.setSpeedLimit(0,130); // trafficObj[2].value=x km/h, 0=free
+trafficObjs.setSpeedLimit(1,130); // trafficObj[2].value=x km/h, 0=free
+trafficObjs.setSpeedLimit(2,80); // trafficObj[2].value=x km/h, 0=free
+trafficObjs.setSpeedLimit(3,50); // trafficObj[2].value=x km/h, 0=free
+trafficObjs.setSpeedLimit(4,80); // trafficObj[2].value=x km/h, 0=free
+trafficObjs.setSpeedLimit(5,130); // trafficObj[2].value=x km/h, 0=free
 
 //#################################################################
 function updateSim(){
@@ -566,10 +578,10 @@ function updateSim(){
     time +=dt; // dt depends on timewarp slider (fps=const)
     itime++;
     isSmartphone=mqSmartphone();
-
     
     if(isGame){
 	updateRoutingGame(time);  // from control_gui.js
+  
 	if(false){
 	    console.log("in game: time=",time," qIn=",qIn,
 		    " mainroad: ",mainroad.nRegularVehs(),"vehicles",
@@ -683,7 +695,48 @@ function updateSim(){
 
 }//updateSim
 
+function drawSpeedLimitInidcators() {
+  trafficObjs.trafficObj.forEach((obj, index) => {
+    obj.xPix = [897.5279973724664, 502.9531338484557, 123.89843804179202, 70.79408676108679, 250.42193180881614, 688.635422565637][index];
+    obj.yPix = [184.61666666666667, 184.61666666666667, 304.76667701240945, 524.5525508799751, 750.4868401307692, 772.0333333333333][index];
+    obj.xPixSign1 = [897.5279973724664, 502.9531338484557, 102.2350571389471, 97.31272263816821, 260.517450424387, 688.635422565637][index];
+    obj.yPixSign1 = [85.11053333333335, 85.11053333333335, 216.24568748211442, 447.6732319423764, 652.9506718902402, 672.5272][index];
+    obj.xPixSign2 = [897.5279973724664, 502.9531338484557, 145.56181894463694, 44.275450884005366, 240.3264131932453, 688.635422565637][index];
+    obj.yPixSign2 = [138.8172, 138.8172, 247.98206654270444, 456.1262698175738, 702.7174083712983, 726.2338666666667][index];
+    obj.xPixDepot = [381.43, 466.57, 466.57, 466.57, 381.43, 381.43][index];
+    obj.yPixDepot = [387.86, 387.86, 473, 558.14, 558.14, 473][index];
+  });
+}
 
+function computeReducedSpeedLimit() {
+  const reactionTime = document.getElementById("slider_reaction_time").value;
+  const frictionCoeff = document.getElementById("slider_friction").value;
+  const visibilityInFog = document.getElementById("slider_fracFog").value / 5;
+
+  const reducedSpeed = Math.sqrt(
+    (62500*reactionTime*reactionTime*frictionCoeff*frictionCoeff + 12960*frictionCoeff*visibilityInFog - 250*reactionTime*frictionCoeff)
+    /7.2);
+  
+  const alphaC = 0.4;
+  const speed = reducedSpeed + (130 - reducedSpeed) * alphaC;
+  const roundedReducedSpeed = Math.floor(speed / 10) * 10;
+  const speedInterval = 130 - roundedReducedSpeed;
+  const deceleratingSpeed = speed + speedInterval / 3;
+  const roundedDecelaretingSpeed = Math.floor(deceleratingSpeed / 10) * 10;
+  const acceleratingSpeed = speed + speedInterval * 2 / 3;
+  const roundedAcceleratingSpeed = Math.floor(acceleratingSpeed / 10) * 10;
+
+  trafficObjs.setSpeedLimit(3, roundedReducedSpeed);
+  trafficObjs.setSpeedLimit(2, roundedDecelaretingSpeed);
+  trafficObjs.setSpeedLimit(4, roundedAcceleratingSpeed);
+
+  document.getElementById("slider_IDM_v1").value = speed;
+  document.getElementById("slider_IDM_v2").value = acceleratingSpeed;
+  document.getElementById("slider_IDM_v3").value = deceleratingSpeed;
+  document.getElementById("slider_IDM_v1Val").innerHTML = Math.round(speed * 100) / 100 + " km/h";
+  document.getElementById("slider_IDM_v2Val").innerHTML = Math.round(acceleratingSpeed * 100) / 100 + " km/h";
+  document.getElementById("slider_IDM_v3Val").innerHTML = Math.round(deceleratingSpeed * 100) / 100 + " km/h";
+}
 
 
 //##################################################
@@ -706,6 +759,10 @@ function drawSim() {
 		" (full hd 16:9 e.g., 1120:630)",
 		" canvas: ",canvas.width," X ",canvas.height);
     }
+
+    //console.log(JSON.stringify(trafficObjs.trafficObj));
+    this.drawSpeedLimitInidcators();
+    this.computeReducedSpeedLimit();
 
 
     if ((canvas.width!=simDivWindow.clientWidth)

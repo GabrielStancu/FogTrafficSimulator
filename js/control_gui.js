@@ -494,7 +494,7 @@ function setSlider(slider, sliderHTMLval, value, commaDigits, str_units){
 
 // timewarp/timelapse  slider
 
-var timewarp=6;
+var timewarp=1;
 var slider_timewarp,slider_timewarpVal;
 if(document.getElementById("slider_timewarp")!==null){
     slider_timewarp = document.getElementById("slider_timewarp");
@@ -597,6 +597,42 @@ if(document.getElementById("slider_fracTruck")!==null){
     }
 }
 
+// fog fraction slider
+
+var fracFog=100; // 0.10
+var fracFogToleratedMismatch=1; // 1=100% allowed=>chges only by sources
+
+var slider_fracFog;
+var slider_fracFogVal;
+if(document.getElementById("slider_fracFog")!==null){
+    slider_fracFog = document.getElementById("slider_fracFog");
+    slider_fracFogVal = document.getElementById("slider_fracFogVal");
+    slider_fracFog.value=fracFog;
+    slider_fracFogVal.innerHTML=fracFog+" m";
+
+    slider_fracFog.oninput = function() {
+        slider_fracFogVal.innerHTML = this.value+" m";
+        fracFog=parseFloat(this.value/100.);
+    }
+}
+
+// friction coefficient slider
+
+var friction=0.5; 
+var slider_friction,slider_frictionVal;
+if(document.getElementById("slider_friction")!==null){
+  slider_friction = document.getElementById("slider_friction");
+  slider_frictionVal = document.getElementById("slider_frictionVal");
+    slider_friction.value=friction;
+    slider_frictionVal.innerHTML=friction;
+
+    slider_friction.oninput = function() {
+      slider_frictionVal.innerHTML = this.value;
+      friction=parseFloat(this.value);
+        //updateModels();
+    }
+}
+
 // scooter/third veh type fraction slider
 
 var fracScooter=0.00; // 
@@ -640,7 +676,7 @@ if(document.getElementById("slider_density")!==null){
 
 // offramp use fraction  slider
 
-var fracOff=0.25; 
+var fracOff=0; 
 var slider_fracOff;
 var slider_fracOffVal;
 if(document.getElementById("slider_fracOff")!==null){
@@ -756,19 +792,35 @@ var testNewModel=false;
 
 // IDM_v0 slider
 
-var IDM_v0=30; 
+var IDM_v0=130/3.6; 
 var slider_IDM_v0,slider_IDM_v0Val;
 if(document.getElementById("slider_IDM_v0")!==null){
    slider_IDM_v0 = document.getElementById("slider_IDM_v0");
    slider_IDM_v0Val = document.getElementById("slider_IDM_v0Val");
-   slider_IDM_v0.value=3.6*IDM_v0;
-   slider_IDM_v0Val.innerHTML=3.6*IDM_v0+" km/h";
+   slider_IDM_v0.value=130;
+   slider_IDM_v0Val.innerHTML=130+" km/h";
    slider_IDM_v0.oninput = function() {
        slider_IDM_v0Val.innerHTML = this.value+" km/h";
        IDM_v0=parseFloat(this.value)/3.6;
        updateModels();
    }
 }
+
+// IDM_v0 slider fog
+
+// var IDM_v0=80/3.6; 
+// var slider_IDM_v0,slider_IDM_v0Val_fog;
+// if(document.getElementById("slider_IDM_v0")!==null){
+//    slider_IDM_v0 = document.getElementById("slider_IDM_v0");
+//    slider_IDM_v0Val_fog = document.getElementById("slider_IDM_v0Val_fog");
+//    slider_IDM_v0.value=80;
+//    slider_IDM_v0Val_fog.innerHTML=80+" km/h";
+//    slider_IDM_v0.oninput = function() {
+//     slider_IDM_v0Val_fog.innerHTML = this.value+" km/h";
+//        IDM_v0=parseFloat(this.value)/3.6;
+//        updateModels();
+//    }
+// }
 
 
 // IDM_T slider
@@ -783,6 +835,22 @@ if(document.getElementById("slider_IDM_T")!==null){
    slider_IDM_T.oninput = function() {
        slider_IDM_TVal.innerHTML = this.value+" s";
        IDM_T=parseFloat(this.value);
+       updateModels();
+   }
+}
+
+// reaction time slider
+
+var reaction_time=1; 
+var slider_reaction_time,slider_reaction_timeVal;
+if(document.getElementById("slider_reaction_time")!==null){
+  slider_reaction_time = document.getElementById("slider_reaction_time");
+  slider_reaction_timeVal = document.getElementById("slider_reaction_timeVal");
+   slider_reaction_time.value=reaction_time;
+   slider_reaction_timeVal.innerHTML=reaction_time+" s";
+   slider_reaction_time.oninput = function() {
+    slider_reaction_timeVal.innerHTML = this.value+" s";
+       reaction_time=parseFloat(this.value);
        updateModels();
    }
 }
@@ -819,6 +887,23 @@ if(document.getElementById("slider_IDM_a")!==null){
 
     slider_IDM_a.oninput = function() {
         slider_IDM_aVal.innerHTML = this.value+" m/s<sup>2</sup>";
+        IDM_a=parseFloat(this.value);
+        updateModels();
+    }
+}
+
+// IDM_a slider fog
+
+var IDM_a=0.3; 
+var slider_IDM_a,slider_IDM_aVal_fog;
+if(document.getElementById("slider_IDM_a")!==null){
+    slider_IDM_a = document.getElementById("slider_IDM_a");
+    slider_IDM_aVal_fog = document.getElementById("slider_IDM_aVal_fog");
+    slider_IDM_a.value=IDM_a;
+    slider_IDM_aVal_fog.innerHTML=IDM_a+" m/s<sup>2</sup>";
+
+    slider_IDM_a.oninput = function() {
+      slider_IDM_aVal_fog.innerHTML = this.value+" m/s<sup>2</sup>";
         IDM_a=parseFloat(this.value);
         updateModels();
     }

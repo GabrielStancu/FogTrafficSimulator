@@ -815,7 +815,7 @@ TrafficObjects.prototype.setSpeedLimit=function(objIndex, value){
     return;
   }
   var imageIndex=Math.round(value/10);
-  if((imageIndex<0) || (imageIndex>=13)){
+  if((imageIndex<0) || (imageIndex>=14)){
     console.log("TrafficObjects.setSpeedLimit:",
 		" only limits 0=free, ... 120=120 km/h available");
     return;
@@ -825,7 +825,7 @@ TrafficObjects.prototype.setSpeedLimit=function(objIndex, value){
   obj.image.src = "figs/speedLimit_"+(imageIndex)+"0.svg";
   
 
-  if(true){
+  if(false){
     console.log("setSpeedLimit:  id=",obj.id,
 		"value=",obj.value);
   }
